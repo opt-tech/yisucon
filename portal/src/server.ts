@@ -44,7 +44,7 @@ app.engine('.html', createEngine({
     // stateless providers only since it's shared
   ]
 }));
-app.set('port', process.env.PORT || 3000);
+app.set('port', 3000);
 app.set('views', __dirname);
 app.set('view engine', 'html');
 app.set('json spaces', 2);
@@ -105,6 +105,7 @@ app.get('*', function(req, res) {
 
 // Server
 process.on('uncaughtException', (err) => {
+  console.error(err);
   console.error('Catching errors to avoid process crash');
 });
 let server = app.listen(app.get('port'), () => {

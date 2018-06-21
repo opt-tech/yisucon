@@ -393,8 +393,8 @@ Description=isucon-node
 
 [Service]
 Type=simple
-User=nobody
-Group=nobody
+User=centos
+Group=centos
 WorkingDirectory=/var/www/webapp/node
 ExecStart=/usr/local/bin/npm start
 
@@ -419,8 +419,8 @@ Description=isucon-go-isutomo
 
 [Service]
 Type=simple
-User=nobody
-Group=nobody
+User=centos
+Group=centos
 WorkingDirectory=/var/www/webapp/go/isutomo
 ExecStart=/var/www/webapp/go/isutomo/isutomo
 
@@ -445,8 +445,8 @@ Description=isucon-go-isuwitter
 
 [Service]
 Type=simple
-User=nobody
-Group=nobody
+User=centos
+Group=centos
 WorkingDirectory=/var/www/webapp/go/isuwitter
 ExecStart=/var/www/webapp/go/isuwitter/isuwitter
 
@@ -471,8 +471,8 @@ Description=isucon-ruby-isutomo
 
 [Service]
 Type=simple
-User=nobody
-Group=nobody
+User=centos
+Group=centos
 WorkingDirectory=/var/www/webapp/ruby
 ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_isutomo.rb isutomo.ru
 
@@ -497,8 +497,8 @@ Description=isucon-ruby-isuwitter
 
 [Service]
 Type=simple
-User=nobody
-Group=nobody
+User=centos
+Group=centos
 WorkingDirectory=/var/www/webapp/ruby
 ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_isuwitter.rb isuwitter.ru
 
