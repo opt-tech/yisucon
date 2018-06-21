@@ -10,7 +10,7 @@ import '../../../node_modules/c3/c3.css';
     `.chart {width: 100%;}`,
   ]
 })
-class ChartComponent implements OnInit, OnChanges {
+export class ChartComponent implements OnInit, OnChanges {
   private chart: c3.ChartAPI;
   private c3obj: any;
 

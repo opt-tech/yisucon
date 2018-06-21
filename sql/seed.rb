@@ -1,4 +1,5 @@
 require 'mysql2-cs-bind'
+require 'digest'
 require './tweet'
 
 def db
@@ -14,7 +15,7 @@ end
 def register(name, pw)
   chars = [*'A'..'~']
   salt = (1..20).map{ chars.sample }.join('')
-  salted_password = encode_with_salt(password: pw, salt: salt)
+  salted_password = encode_with_salt(pw, salt)
   db.xquery(%|
     INSERT INTO isuwitter.users (name, salt, password)
     VALUES (?, ?, ?)
@@ -22,7 +23,7 @@ def register(name, pw)
   db.last_id
 end
 
-def encode_with_salt(password: , salt: )
+def encode_with_salt(password, salt)
   Digest::SHA1.hexdigest(salt + password)
 end
 
@@ -75,4 +76,3 @@ end
 tweets.sort_by{|t| t[2]}.each_slice(100) do |ts|
   bulk_tweet ts
 end
-
