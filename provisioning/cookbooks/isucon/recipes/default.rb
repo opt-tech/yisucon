@@ -474,7 +474,7 @@ Type=simple
 User=centos
 Group=centos
 WorkingDirectory=/var/www/webapp/ruby
-ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_isutomo.rb isutomo.ru
+ExecStart=/home/centos/bin/unicorn -c unicorn_isutomo.rb isutomo.ru
 
 [Install]
 WantedBy=multi-user.target
@@ -500,7 +500,7 @@ Type=simple
 User=centos
 Group=centos
 WorkingDirectory=/var/www/webapp/ruby
-ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_isuwitter.rb isuwitter.ru
+ExecStart=/home/centos/bin/unicorn -c unicorn_isuwitter.rb isuwitter.ru
 
 [Install]
 WantedBy=multi-user.target
