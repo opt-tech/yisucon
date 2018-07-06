@@ -51,7 +51,7 @@ directory "/usr/local/src/nodejs" do
   action :create
 end
 
-nodejs_version = "6.9.2"
+nodejs_version = "8.11.3"
 
 remote_file "/usr/local/src/nodejs/node-v#{nodejs_version}-linux-x64.tar.gz" do
   source "https://nodejs.org/dist/v#{nodejs_version}/node-v#{nodejs_version}-linux-x64.tar.gz"
@@ -85,8 +85,8 @@ mkdir -p /var/www/portal
 rsync -av --delete portal/ /var/www/portal/
 
 cd /var/www/portal
-sudo npm install
-NODE_ENV=#{node["env"]} sudo npm run build:prod:ngc
+npm install
+NODE_ENV=#{node["env"]} npm run build:prod:ngc
   END
 end
 
