@@ -89,7 +89,7 @@ func htmlify(tweet string) string {
 }
 
 func loadFriends(name string) ([]string, error) {
-	resp, err := http.DefaultClient.Get(pathURIEscape(fmt.Sprintf("%s/%s", isutomoEndpoint, name)))
+	resp, err := http.DefaultClient.Get(isutomoEndpoint + pathURIEscape("/"+name))
 	if err != nil {
 		return nil, err
 	}
@@ -295,7 +295,7 @@ func followHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonStr := `{"user":"` + r.FormValue("user") + `"}`
-	req, err := http.NewRequest(http.MethodPost, pathURIEscape(isutomoEndpoint+"/"+userName), bytes.NewBuffer([]byte(jsonStr)))
+	req, err := http.NewRequest(http.MethodPost, isutomoEndpoint+pathURIEscape("/"+userName), bytes.NewBuffer([]byte(jsonStr)))
 
 	if err != nil {
 		badRequest(w)
@@ -329,7 +329,7 @@ func unfollowHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonStr := `{"user":"` + r.FormValue("user") + `"}`
-	req, err := http.NewRequest(http.MethodDelete, pathURIEscape(isutomoEndpoint+"/"+userName), bytes.NewBuffer([]byte(jsonStr)))
+	req, err := http.NewRequest(http.MethodDelete, isutomoEndpoint+pathURIEscape("/"+userName), bytes.NewBuffer([]byte(jsonStr)))
 
 	if err != nil {
 		badRequest(w)
