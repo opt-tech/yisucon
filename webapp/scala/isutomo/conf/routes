@@ -3,9 +3,7 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
-# An example controller showing how to write asynchronous code
-GET     /message                    controllers.AsyncController.message
-
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(file)
+GET     /initialize                           controllers.IsutomoController.initialize
+GET     /:me                           controllers.IsutomoController.myFriends(me: String)
+POST     /:me                           controllers.IsutomoController.addFriend(me: String)
+DELETE   /:me                             controllers.IsutomoController.deleteFriend(me: String)
