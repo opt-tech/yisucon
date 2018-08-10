@@ -366,8 +366,9 @@ go build
 
 ## ruby
 cd /var/www/webapp/ruby
+mkdir -p /vender/bundle
 gem install bundler
-bundle install
+bundle install --path /vender/bundle
 
 ## php
 cd /var/www/webapp/php
@@ -474,7 +475,7 @@ Type=simple
 User=centos
 Group=centos
 WorkingDirectory=/var/www/webapp/ruby
-ExecStart=/home/centos/bin/unicorn -c unicorn_isutomo.rb isutomo.ru
+ExecStart=/vender/bundle/unicorn -c unicorn_isutomo.rb isutomo.ru
 
 [Install]
 WantedBy=multi-user.target
@@ -500,7 +501,7 @@ Type=simple
 User=centos
 Group=centos
 WorkingDirectory=/var/www/webapp/ruby
-ExecStart=/home/centos/bin/unicorn -c unicorn_isuwitter.rb isuwitter.ru
+ExecStart=/vender/bundle/unicorn -c unicorn_isuwitter.rb isuwitter.ru
 
 [Install]
 WantedBy=multi-user.target
