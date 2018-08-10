@@ -1,0 +1,67 @@
+body {
+  margin: 0;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+p {
+  margin: 5px 0;
+}
+
+button {
+  border-radius: none;
+  border: solid 1px #aaa;
+  background: #eee;
+  margin-left: 10px;
+  padding: 3px 10px;
+  vertical-align: bottom;
+}
+
+.header {
+  padding: 10px 20px;
+  background: #ccc;
+}
+
+.title {
+  color: #000;
+  font-size: 20px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.search {
+  display: inline-block;
+  float: right;
+  margin: 0 20px;
+}
+.search input {
+  font-size: 15px;
+  border: none;
+}
+
+.name {
+  float: right;
+}
+
+.logout {
+  display: inline-block;
+  float: right;
+}
+
+.container {
+  padding: 20px;
+}
+
+.tweet {
+  border: 1px solid #ccc;
+  margin: 5px;
+  padding: 5px;
+}
+
+.time {
+  color: #666;
+  font-size: .9em;
+}
