@@ -369,6 +369,8 @@ cd /var/www/webapp/ruby
 mkdir -p /vendor/bundle
 gem install bundler
 bundle install --path /vendor/bundle
+sudo gem update --system
+gem update bundler
 
 ## php
 cd /var/www/webapp/php
