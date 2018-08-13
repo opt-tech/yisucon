@@ -1,14 +1,7 @@
-@*
- * This template takes a two arguments, a String containing a
- * message to display and an AssetsFinder to locate static assets.
- *@
-@(message: String)(implicit assetsFinder: AssetsFinder)
-
-@*
- * Call the `main` template with two arguments. The first
- * argument is a `String` with the title of the page, the second
- * argument is an `Html` object containing the body of the page.
- *@
-@main("Welcome to Play", assetsFinder) {
-
+@import model.Tweet
+@(name: String, tweets: Seq[Tweet])(implicit assetsFinder: AssetsFinder)
+@layout(name, assetsFinder) {
+    @_post()
+    @_tweet(tweets)
+    <button class="readmore">さらに読み込む</button>
 }

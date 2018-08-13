@@ -1,12 +1,12 @@
 package model
 
-import org.joda.time.LocalDateTime
+import java.time.LocalDateTime
 
 case class Tweet(
   userId: Int,
-  text: String,
-  createdAt: LocalDateTime,
-  serName: String,
-  html: String,
-  time: String
+  text: String = null,
+  createdAt: LocalDateTime = null,
+  userName: String = null,
+  html: String = null,
+  time: String = null
 )
