@@ -4,10 +4,22 @@
 
 # An example controller showing a sample home page
 GET     /                           controllers.IsuwitterController.index(until: Option[String], append: Option[Int])
++ nocsrf
+POST     /                           controllers.IsuwitterController.tweet()
 
 + nocsrf
 POST     /login                           controllers.IsuwitterController.login()
 
++ nocsrf
+POST     /logout                           controllers.IsuwitterController.logout()
+
++ nocsrf
+POST     /follow                           controllers.IsuwitterController.follow()
+
++ nocsrf
+POST     /unfollow                           controllers.IsuwitterController.unfollow()
+
+GET     /initialize                           controllers.IsuwitterController.initialize()
 GET     /hashtag/:tag                           controllers.IsuwitterController.searchTag(tag: String, until: Option[String], append: Option[Int])
 GET     /search                           controllers.IsuwitterController.search(q: String, until: Option[String], append: Option[Int])
 GET     /:user                           controllers.IsuwitterController.user(user: String, until: Option[String], append: Option[Int])

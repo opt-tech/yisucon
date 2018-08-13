@@ -11,6 +11,7 @@ trait TweetRepository {
   def findOrderByCreatedAtDesc(until: String): Seq[Tweet]
   def findByUserIdOrderByCreatedAtDesc(userId: Int): Seq[Tweet]
   def findByUserIdOrderByCreatedAtDesc(userId: Int, createdAt: String): Seq[Tweet]
+  def create(userId: Int, text: String): Int
 }
 
 @Singleton
@@ -43,6 +44,14 @@ class TweetRepositoryImpl @Inject()(appDBConnection: AppDBConnection) extends Tw
     appDBConnection.db.localTx{ implicit session =>
       sql"SELECT * FROM tweets WHERE user_id = ${userId} AND created_at < ${createdAt} ORDER BY created_at DESC"
         .map(rs => convert(rs)).list.apply()
+    }
+  }
+
+  override def create(userId: Int, text: String): Int = {
+    appDBConnection.db.localTx{ implicit session =>
+      val res = sql"INSERT INTO tweets (user_id, text, created_at) VALUES (${userId}, ${text}, NOW())"
+        .updateAndReturnGeneratedKey.apply()
+      res.toInt
     }
   }
 }

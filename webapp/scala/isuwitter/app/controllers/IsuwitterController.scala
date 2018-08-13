@@ -3,14 +3,16 @@ package controllers
 import java.security.{MessageDigest, NoSuchAlgorithmException}
 import java.time.format.DateTimeFormatter
 
+import scalikejdbc._
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin
 import javax.inject.{Inject, Singleton}
 import model.Tweet
 import play.api.data.Form
 import play.api.data.Forms.{mapping, _}
+import play.api.libs.json.Json
 import play.api.libs.ws.{WSClient, WSRequest}
 import play.api.mvc.{AbstractController, AnyContent, ControllerComponents, Request}
-import repository.{TweetRepository, UserRepository}
+import repository.{AppDBConnection, TweetRepository, UserRepository}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -26,10 +28,101 @@ object LoginRequest {
   val form = Form(formMapping)
 }
 
+case class FollowRequest(user: String)
+
+object FollowRequest {
+  val formMapping = mapping(
+    "user" -> text
+  )(FollowRequest.apply)(FollowRequest.unapply)
+  val form = Form(formMapping)
+}
+
+case class TweetRequest(text: String)
+
+object TweetRequest {
+  val formMapping = mapping(
+    "text" -> text
+  )(TweetRequest.apply)(TweetRequest.unapply)
+  val form = Form(formMapping)
+}
+
 @Singleton
-class IsuwitterController @Inject()(cc: ControllerComponents, userRepository: UserRepository, tweetRepository: TweetRepository, ws: WSClient)(implicit assetsFinder: AssetsFinder) extends AbstractController(cc) {
+class IsuwitterController @Inject()(cc: ControllerComponents, userRepository: UserRepository, tweetRepository: TweetRepository, ws: WSClient, appDBConnection: AppDBConnection)(implicit assetsFinder: AssetsFinder) extends AbstractController(cc) {
 
   val PER_PAGE = 50
+
+  def tweet() = Action(parse.form(TweetRequest.form)) { implicit request =>
+    val userIdOpt = request.session.get("user_id")
+    if (userIdOpt.isEmpty) {
+      Found("/")
+    } else {
+      val text = request.body.text
+      tweetRepository.create(userIdOpt.get.toInt, text)
+      Found("/")
+    }
+  }
+
+  def follow() = Action(parse.form(FollowRequest.form)) { implicit request =>
+    val userIdOpt = request.session.get("user_id")
+    if (userIdOpt.isEmpty) {
+      Found("/")
+    } else {
+      val name = getUserName(userIdOpt.map(_.toInt))
+      val user = request.body.user
+
+      val complexRequest = ws.url(s"http://localhost:8081/${name}").addHttpHeaders("Accept" -> "application/json")
+      val data = Json.obj("user" -> user)
+      val response = Await.result(complexRequest.post(data), Duration.Inf)
+      if (response.status != 200) {
+        InternalServerError("error")
+      } else {
+        Found(s"/${user}")
+      }
+    }
+  }
+
+  def unfollow() = Action(parse.form(FollowRequest.form)) { implicit request =>
+    val userIdOpt = request.session.get("user_id")
+    if (userIdOpt.isEmpty) {
+      Found("/")
+    } else {
+      val name = getUserName(userIdOpt.map(_.toInt))
+      val user = request.body.user
+
+      val complexRequest = ws.url(s"http://localhost:8081/${name}").addHttpHeaders("Accept" -> "application/json")
+      val data = Json.obj("user" -> user)
+      val response = Await.result(complexRequest.withBody(data).delete(), Duration.Inf)
+      if (response.status != 200) {
+        InternalServerError("error")
+      } else {
+        Found(s"/${user}")
+      }
+    }
+  }
+
+  def logout() = Action { implicit request =>
+    Found("/").removingFromSession("user_id")
+  }
+
+  def initialize() = Action {
+    if (!initializer()) {
+      InternalServerError("error")
+    } else {
+      Ok(Json.obj("result" -> "ok"))
+    }
+  }
+
+  def initializer(): Boolean = {
+    appDBConnection.db.localTx{ implicit session =>
+      sql"DELETE FROM tweets WHERE id > 100000".update.apply()
+      sql"DELETE FROM users WHERE id > 1000".update.apply()
+    }
+    val request: WSRequest = ws.url("http://localhost:8081/initialize")
+    val complexRequest: WSRequest = request.addHttpHeaders("Accept" -> "application/json")
+    val response = Await.result(complexRequest.get(), Duration.Inf)
+    if (response.status != 200) return false
+    true
+  }
 
   def index(_until: Option[String], _append: Option[Int]) = Action { implicit request =>
     val until = _until.getOrElse("")

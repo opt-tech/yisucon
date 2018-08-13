@@ -7,7 +7,6 @@ import scalikejdbc._
 trait UserRepository {
   def findByUserName(name: String): Option[User]
   def findByUserId(id: Int): Option[User]
-  def update(friends: String, name: String): Boolean
 }
 
 @Singleton
@@ -26,14 +25,6 @@ class UserRepositoryImpl @Inject()(appDBConnection: AppDBConnection) extends Use
     appDBConnection.db.localTx{ implicit session =>
       sql"SELECT * FROM users WHERE id = ${id}"
         .map(rs => convert(rs)).single.apply()
-    }
-  }
-
-  override def update(friends: String, name: String): Boolean = {
-    appDBConnection.db.localTx{ implicit session =>
-      val res = sql"UPDATE friends SET friends = ${friends} WHERE me = ${name}"
-        .map(rs => convert(rs)).update.apply()
-      res != 0
     }
   }
 }
