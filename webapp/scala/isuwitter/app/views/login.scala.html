@@ -1,0 +1,14 @@
+@(flush: String, name: String)(implicit assetsFinder: AssetsFinder)
+    @layout(name, assetsFinder) {
+        <div>
+        @if(flush != null) {
+            <p class="flush">@flush</p>
+        } else {
+            <form class="login" action="/login" method="post">
+                <input type="text" name="name" />
+                <input type="password" name="password" />
+                <button type="submit">ログイン</button>
+            </form>
+        }
+        </div>
+    }

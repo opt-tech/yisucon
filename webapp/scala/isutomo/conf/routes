@@ -1,0 +1,9 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# An example controller showing a sample home page
+GET     /initialize                           controllers.IsutomoController.initialize
+GET     /:me                           controllers.IsutomoController.myFriends(me: String)
+POST     /:me                           controllers.IsutomoController.addFriend(me: String)
+DELETE   /:me                             controllers.IsutomoController.deleteFriend(me: String)
