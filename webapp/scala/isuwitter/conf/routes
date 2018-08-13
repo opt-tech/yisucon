@@ -3,11 +3,13 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.IsuwitterController.index
+GET     /                           controllers.IsuwitterController.index(until: Option[String], append: Option[Int])
 
 + nocsrf
 POST     /login                           controllers.IsuwitterController.login()
 
+GET     /hashtag/:tag                           controllers.IsuwitterController.searchTag(tag: String, until: Option[String], append: Option[Int])
+GET     /search                           controllers.IsuwitterController.search(q: String, until: Option[String], append: Option[Int])
 GET     /:user                           controllers.IsuwitterController.user(user: String, until: Option[String], append: Option[Int])
 
 # Map static resources from the /public folder to the /assets URL path

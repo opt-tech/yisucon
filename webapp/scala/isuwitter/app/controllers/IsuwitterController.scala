@@ -9,7 +9,7 @@ import model.Tweet
 import play.api.data.Form
 import play.api.data.Forms.{mapping, _}
 import play.api.libs.ws.{WSClient, WSRequest}
-import play.api.mvc.{AbstractController, ControllerComponents}
+import play.api.mvc.{AbstractController, AnyContent, ControllerComponents, Request}
 import repository.{TweetRepository, UserRepository}
 
 import scala.concurrent.Await
@@ -31,14 +31,17 @@ class IsuwitterController @Inject()(cc: ControllerComponents, userRepository: Us
 
   val PER_PAGE = 50
 
-  def index = Action { implicit request =>
+  def index(_until: Option[String], _append: Option[Int]) = Action { implicit request =>
+    val until = _until.getOrElse("")
+    val append = _append.getOrElse(0)
     request.session.get("user_id").map { id =>
       val name = getUserName(Some(id.toInt))
       val friends = loadFriend(name)
-      var rows: Seq[Tweet] = Seq()
-
-      //TODO
-      rows = tweetRepository.findOrderByCreatedAtDesc()
+      val rows = if (until.length == 0) {
+        tweetRepository.findOrderByCreatedAtDesc()
+      } else {
+        tweetRepository.findOrderByCreatedAtDesc(until)
+      }
 
       var tweets = Seq[Tweet]()
       val b = new Breaks
@@ -55,7 +58,11 @@ class IsuwitterController @Inject()(cc: ControllerComponents, userRepository: Us
           if (tweets.size == PER_PAGE) b.break
         }
       }
-      Ok(views.html.index(name, tweets)).removingFromSession("flush")
+      if (append == 0) {
+        Ok(views.html.index(name, tweets)).removingFromSession("flush")
+      } else {
+        Ok(views.html._tweet(tweets)).removingFromSession("flush")
+      }
     }.getOrElse {
       request.session.get("flush")
         .map { flush =>
@@ -77,6 +84,51 @@ class IsuwitterController @Inject()(cc: ControllerComponents, userRepository: Us
     user.get.userName
   }
 
+  def search(query: String, _until: Option[String], _append: Option[Int]) = Action { implicit request =>
+    val until = _until.getOrElse("")
+    val append = _append.getOrElse(0)
+    searchInternal(request, query, until, append)
+  }
+
+  def searchInternal(request: Request[AnyContent], query: String, until: String, append: Int) = {
+    val id = request.session.get("user_id").map(_.toInt)
+    val name = getUserName(id)
+
+    val rows = if (until.length == 0) {
+      tweetRepository.findOrderByCreatedAtDesc()
+    } else {
+      tweetRepository.findOrderByCreatedAtDesc(until)
+    }
+
+    var tweets = Seq[Tweet]()
+    val b = new Breaks
+    b.breakable {
+      for (row <- rows) {
+        var tweet = new Tweet(row.userId)
+        tweet = tweet.copy(html = htmlify(row.text))
+        tweet = tweet.copy(time = row.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+        tweet = tweet.copy(userName = getUserName(Some(row.userId)))
+        if (row.text.contains(query)) {
+          tweets = tweets :+ tweet
+        }
+        if (tweets.size == PER_PAGE) b.break
+      }
+    }
+
+    if (append == 0) {
+      Ok(views.html.search(name, query, tweets))
+    } else {
+      Ok(views.html._tweet(tweets))
+    }
+  }
+
+  def searchTag(tag: String, _until: Option[String], _append: Option[Int]) = Action { implicit request =>
+    val until = _until.getOrElse("")
+    val append = _append.getOrElse(0)
+    val query = "#" + tag
+    searchInternal(request, query, until, append)
+  }
+
   def user(user: String, _until: Option[String], _append: Option[Int]) = Action { implicit request =>
     val until = _until.getOrElse("")
     val append = _append.getOrElse(0)
@@ -94,7 +146,7 @@ class IsuwitterController @Inject()(cc: ControllerComponents, userRepository: Us
         val friends = loadFriend(name)
         if (friends.contains(user)) isFriend = true
       }
-      var rows = if (until.length == 0) {
+      val rows = if (until.length == 0) {
         tweetRepository.findByUserIdOrderByCreatedAtDesc(userId)
       } else {
         tweetRepository.findByUserIdOrderByCreatedAtDesc(userId, until)
