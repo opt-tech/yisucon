@@ -338,6 +338,29 @@ java_version = "1.8.0"
 package "java-#{java_version}-openjdk"
 package "java-#{java_version}-openjdk-devel"
 
+## scala
+
+directory "/usr/local/src/scala" do
+  owner "root"
+  group "root"
+  mode 0755
+  action :create
+end
+
+bash "install-scala" do
+  user "root"
+  cwd "/usr/local/src/scala"
+  code <<-"END"
+set -ex
+
+curl https://bintray.com/sbt/rpm/rpm | sudo tee /etc/yum.repos.d/bintray-sbt-rpm.repo
+yum install unzip sbt -y
+
+touch /usr/local/src/scala/scala-install.done
+  END
+  not_if { ::File.exists?("/usr/local/src/scala/scala-install.done") }
+end
+
 ## webapp
 
 bash "install-webapp" do
@@ -381,6 +404,18 @@ cd /var/www/webapp/java/isutomo
 ./mvnw clean package
 cd /var/www/webapp/java/isuwitter
 ./mvnw clean package
+
+## scala
+
+cd /var/www/webapp/scala/isutomo
+sbt clean dist
+cd ./target/universal
+unzip isutomo-1.0.zip
+
+cd /var/www/webapp/scala/isuwitter
+sbt clean dist
+cd ./target/universal
+unzip isuwitter-1.0.zip
 
 chown -R root:root /var/www/webapp
   END
@@ -592,6 +627,61 @@ WantedBy=multi-user.target
 end
 
 service "isucon-java-isuwitter" do
+  supports :start => true, :status => true, :restart => true
+  # action [:enable, :start]
+end
+
+
+file "/etc/systemd/system/isucon-scala-isutomo.service" do
+  owner "root"
+  group "root"
+  mode 0755
+  content <<-"END"
+[Unit]
+Description=isucon-scala-isutomo
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/var/www/webapp/scala/isutomo
+Environment="_JAVA_OPTIONS=-Djava.security.egd=file:/dev/urandom"
+ExecStart=/var/www/webapp/scala/isutomo/target/universal/isutomo-1.0/bin/isutomo -Dhttp.port=8081
+
+[Install]
+WantedBy=multi-user.target
+  END
+  notifies :run, "execute[systemctl-daemon-reload]", :immediately
+end
+
+service "isucon-scala-isutomo" do
+  supports :start => true, :status => true, :restart => true
+  # action [:enable, :start]
+end
+
+file "/etc/systemd/system/isucon-scala-isuwitter.service" do
+  owner "root"
+  group "root"
+  mode 0755
+  content <<-"END"
+[Unit]
+Description=isucon-scala-isuwitter
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment="_JAVA_OPTIONS=-Djava.security.egd=file:/dev/urandom"
+WorkingDirectory=/var/www/webapp/scala/isuwitter
+ExecStart=/var/www/webapp/scala/isuwitter/target/universal/isuwitter-1.0/bin/isuwitter -Dhttp.port=8080
+
+[Install]
+WantedBy=multi-user.target
+  END
+  notifies :run, "execute[systemctl-daemon-reload]", :immediately
+end
+
+service "isucon-scala-isuwitter" do
   supports :start => true, :status => true, :restart => true
   # action [:enable, :start]
 end
