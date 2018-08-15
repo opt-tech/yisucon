@@ -1,20 +1,23 @@
 import mysql.connector
-from mysql.connector import errorcode
+from mysql.connector.cursor import MySQLCursorPrepared
 
 
 def connection():
     return mysql.connector.connect(
-            user='root',
-            password='',
-            host='127.0.0.1',
-            database='optomo'
-        )
+        user='root',
+        password='',
+        host='127.0.0.1',
+        database='optomo',
+        use_pure=True
+    )
 
 
 def get_friends(user):
     try:
+        cnx = None
+        cursor = None
         cnx = connection()
-        cursor = cnx.cursor(prepared=True)
+        cursor = cnx.cursor(prepared=True, cursor_class=MySQLCursorPrepared)
 
         stmt = "SELECT * FROM friends WHERE me = ?"
         cursor.execute(stmt, (user, ))
@@ -33,8 +36,10 @@ def get_friends(user):
 
 def set_friends(friends, user):
     try:
+        cnx = None
+        cursor = None
         cnx = connection()
-        cursor = cnx.cursor(prepared=True)
+        cursor = cnx.cursor(prepared=True, cursor_class=MySQLCursorPrepared)
 
         stmt = "UPDATE friends SET friends = ? WHERE me = ?"
         cursor.execute(stmt, (','.join(friends), user))
