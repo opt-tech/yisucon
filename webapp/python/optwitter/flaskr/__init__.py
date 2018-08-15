@@ -1,6 +1,6 @@
 import urllib.request
 import hashlib
-from flask import Flask, request, json, abort, jsonify, render_template, make_response, redirect
+from flask import Flask, request, json, abort, jsonify, render_template, make_response, redirect, session
 from . import db
 
 PERPAGE = 50
@@ -25,11 +25,17 @@ def create_app():
 
     @app.route('/')
     def _index():
-        name = db.get_user_name(request.cookies.get('userId'))
+        user_id = None
+        print(session)
+        if 'userId' in session:
+            user_id = session['userId']
+        name = db.get_user_name(user_id)
         if not name:
-            flush = request.cookies.get('flush')
+            flush = None
+            if 'flush' in session:
+                flush = session['flush']
             res = make_response(render_template('index.html', flush=flush))
-            res.set_cookie('flush', '')
+            session.pop('flush', None)
             return res
         req = urllib.request.Request('http://localhost:8081/' + name)
         with urllib.request.urlopen(req) as res:
@@ -56,23 +62,29 @@ def create_app():
 
     @app.route('/', methods=['POST'])
     def post():
-        name = db.get_user_name(request.cookies.get('userId'))
+        user_id = None
+        if 'userId' in session:
+            user_id = session['userId']
+        name = db.get_user_name(user_id)
         text = request.form['text']
         if (not name) or (not text):
             return redirect("/", code=302)
-        db.insert(request.cookies.get('userId'), text)
+        db.insert(user_id, text)
         return redirect("/", code=302)
 
     @app.route('/logout', methods=['POST'])
     def logout():
         res = make_response(redirect("/", code=302))
-        res.set_cookie('flush', '')
-        res.set_cookie('userId', '')
+        session.pop('flush', None)
+        session.pop('userId', None)
         return res
 
     @app.route('/<user>')
     def get_user(user):
-        name = db.get_user_name(request.cookies.get('userId'))
+        user_id = None
+        if 'userId' in session:
+            user_id = session['userId']
+        name = db.get_user_name(user_id)
         my_page = user == name
 
         user_id = db.get_user_id(user)
@@ -105,7 +117,10 @@ def create_app():
 
     @app.route('/follow', methods=['POST'])
     def follow():
-        name = db.get_user_name(request.cookies.get('userId'))
+        user_id = None
+        if 'userId' in session:
+            user_id = session['userId']
+        name = db.get_user_name(user_id)
         if not name:
             return redirect("/", code=302)
         user = request.form['user']
@@ -122,7 +137,10 @@ def create_app():
 
     @app.route('/unfollow', methods=['POST'])
     def unfollow():
-        name = db.get_user_name(request.cookies.get('userId'))
+        user_id = None
+        if 'userId' in session:
+            user_id = session['userId']
+        name = db.get_user_name(user_id)
         if not name:
             return redirect("/", code=302)
         user = request.form['user']
@@ -148,10 +166,10 @@ def create_app():
             sha1digest = hashlib.sha1((user[2] + password).encode('utf-8')).hexdigest()
             if user[3] != sha1digest:
                 res = make_response(redirect("/", code=302))
-                res.set_cookie('flush', 'ログインエラー')
+                session['flush'] = 'ログインエラー'
                 return res
             res = make_response(redirect("/", code=302))
-            res.set_cookie('userId', str(user[0]))
+            session['userId'] = str(user[0])
             return res
 
     @app.route('/search')
@@ -163,7 +181,10 @@ def create_app():
         return search('#' + tag)
 
     def search(query):
-        name = db.get_user_name(request.cookies.get('userId'))
+        user_id = None
+        if 'userId' in session:
+            user_id = session['userId']
+        name = db.get_user_name(user_id)
         tweets = []
         for _row in db.get_all_tweets(request.args.get('until')):
             row = {}
@@ -184,4 +205,5 @@ def create_app():
         else:
             return render_template('_tweets.html', tweets=tweets)
 
+    app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
     return app
