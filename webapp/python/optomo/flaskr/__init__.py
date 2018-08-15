@@ -9,7 +9,7 @@ def create_app():
 
     @app.route('/initialize')
     def _index():
-        res = subprocess.call('mysql -u root -h 127.0.0.1 -D isutomo < ../../sql/seed_isutomo.sql', shell=True)
+        res = subprocess.call('mysql -u root -h 127.0.0.1 -D optomo < ../../sql/seed_optomo.sql', shell=True)
         if res:
             print('error')
             abort(500, 'error')
