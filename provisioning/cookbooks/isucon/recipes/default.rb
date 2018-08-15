@@ -441,7 +441,7 @@ unzip isuwitter-1.0.zip
 
 ## python
 cd /var/www/webapp/python/optomo
-pip3.6 -r requirements.txt
+pip3.6 install -r requirements.txt
 
 chown -R root:root /var/www/webapp
   END
