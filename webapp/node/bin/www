@@ -4,8 +4,8 @@
  * Module dependencies.
  */
 
-var app = require('../isuwitter');
-var isutomo = require('../isutomo');
+var app = require('../optwitter');
+var optomo = require('../optomo');
 var debug = require('debug')('test:server');
 var http = require('http');
 
@@ -16,11 +16,11 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 
-var isutomoPort = normalizePort(process.env.ISUTOMO_PORT || '8081');
-isutomo.set('port', isutomoPort);
-var isutomoServer = http.createServer(isutomo);
-isutomoServer.listen(isutomoPort);
-isutomoServer.on('error', onError);
+var optomoPort = normalizePort(process.env.OPTOMO_PORT || '8081');
+optomo.set('port', optomoPort);
+var optomoServer = http.createServer(optomo);
+optomoServer.listen(optomoPort);
+optomoServer.on('error', onError);
 
 
 /**

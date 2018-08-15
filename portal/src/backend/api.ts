@@ -21,7 +21,7 @@ import { Subject } from 'rxjs';
 
 export const apiRouter = express.Router();
 
-const SECRET_KEY = process.env.YJ_ISUCON_SECRET_KEY || 'secret_key';
+const SECRET_KEY = process.env.OPT_ISUCON_SECRET_KEY || 'secret_key';
 const pool = db.createPool();
 const validateJsonSchema = expressJsonSchema.validate;
 const validateJwt = expressJwt({

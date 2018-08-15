@@ -21,22 +21,22 @@ $ sudo ./provision.sh development isucon
 
 ```
 $ sudo systemctl stop isucon-node
-$ sudo systemctl start isucon-go-isutomo
-$ sudo systemctl start isucon-go-isuwitter
+$ sudo systemctl start isucon-go-optomo
+$ sudo systemctl start isucon-go-optwitter
 ```
 
 :memo: `go` と `ruby`, `java` では二種類のサービスを起動します
 
 ```bash
 $ systemctl list-unit-files | grep isucon
-isucon-go-isutomo.service                 disabled
-isucon-go-isuwitter.service               disabled
-isucon-java-isutomo.service               disabled
-isucon-java-isuwitter.service             disabled
+isucon-go-optomo.service                 disabled
+isucon-go-optwitter.service               disabled
+isucon-java-optomo.service               disabled
+isucon-java-optwitter.service             disabled
 isucon-node.service                       enabled
 isucon-php.service                        disabled
-isucon-ruby-isutomo.service               disabled
-isucon-ruby-isuwitter.service             disabled
+isucon-ruby-optomo.service               disabled
+isucon-ruby-optwitter.service             disabled
 ```
 
 :memo: `php` では `nginx` の設定を切り替えてください

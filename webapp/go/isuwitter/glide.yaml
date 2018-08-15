@@ -1,6 +1,0 @@
-package: yisucon1/webapp/go/isuwitter
-import:
-- package: github.com/go-sql-driver/mysql
-- package: github.com/gorilla/mux
-- package: github.com/gorilla/sessions
-- package: github.com/unrolled/render

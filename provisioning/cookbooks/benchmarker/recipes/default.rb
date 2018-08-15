@@ -28,12 +28,12 @@ file "/etc/environment" do
   group "root"
   mode 0644
   content <<-"END"
-YJ_ISUCON_PORTAL_HOST=#{node["portal_host"]}
-YJ_ISUCON_DB_HOST=#{node["db_host"]}
-YJ_ISUCON_DB_PORT=#{node["db_port"]}
-YJ_ISUCON_DB_USER=#{node["db_user"]}
-YJ_ISUCON_DB_PASSWORD=#{node["db_pass"]}
-YJ_ISUCON_DB_NAME=#{node["db_name"]}
+OPT_ISUCON_PORTAL_HOST=#{node["portal_host"]}
+OPT_ISUCON_DB_HOST=#{node["db_host"]}
+OPT_ISUCON_DB_PORT=#{node["db_port"]}
+OPT_ISUCON_DB_USER=#{node["db_user"]}
+OPT_ISUCON_DB_PASSWORD=#{node["db_pass"]}
+OPT_ISUCON_DB_NAME=#{node["db_name"]}
   END
 end
 

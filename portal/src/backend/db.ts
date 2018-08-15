@@ -3,11 +3,11 @@ import * as mysql from 'mysql2';
 
 export function createPool() {
   return mysql.createPool({
-    host:     process.env.YJ_ISUCON_DB_HOST || 'localhost',
-    user:     process.env.YJ_ISUCON_DB_USER || 'root',
-    password: process.env.YJ_ISUCON_DB_PASSWORD || '',
-    port:     process.env.YJ_ISUCON_DB_PORT || '3306',
-    database: process.env.YJ_ISUCON_DB_NAME || 'isucon',
+    host:     process.env.OPT_ISUCON_DB_HOST || 'localhost',
+    user:     process.env.OPT_ISUCON_DB_USER || 'root',
+    password: process.env.OPT_ISUCON_DB_PASSWORD || '',
+    port:     process.env.OPT_ISUCON_DB_PORT || '3306',
+    database: process.env.OPT_ISUCON_DB_NAME || 'isucon',
     connectionLimit: 10
   });
 }
