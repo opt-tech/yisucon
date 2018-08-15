@@ -1,20 +1,24 @@
 import mysql.connector
+from mysql.connector.cursor import MySQLCursorPrepared
 import re
 
 
 def connection():
     return mysql.connector.connect(
-            user='root',
-            password='',
-            host='127.0.0.1',
-            database='optwitter'
-        )
+        user='root',
+        password='',
+        host='127.0.0.1',
+        database='optwitter',
+        use_pure=True
+    )
 
 
 def find_user(name):
     try:
+        cnx = None
+        cursor = None
         cnx = connection()
-        cursor = cnx.cursor(prepared=True)
+        cursor = cnx.cursor(prepared=True, cursor_class=MySQLCursorPrepared)
 
         stmt = "SELECT * FROM users WHERE name = ?"
         cursor.execute(stmt, (name, ))
@@ -33,8 +37,10 @@ def find_user(name):
 
 def get_user_id(name):
     try:
+        cnx = None
+        cursor = None
         cnx = connection()
-        cursor = cnx.cursor(prepared=True)
+        cursor = cnx.cursor(prepared=True, cursor_class=MySQLCursorPrepared)
 
         stmt = "SELECT * FROM users WHERE name = ?"
         cursor.execute(stmt, (name, ))
@@ -53,8 +59,10 @@ def get_user_id(name):
 
 def get_user_name(_id):
     try:
+        cnx = None
+        cursor = None
         cnx = connection()
-        cursor = cnx.cursor(prepared=True)
+        cursor = cnx.cursor(prepared=True, cursor_class=MySQLCursorPrepared)
 
         stmt = "SELECT * FROM users WHERE id = ?"
         cursor.execute(stmt, (_id, ))
@@ -80,8 +88,10 @@ def htmlify(text):
 
 def get_user_tweets(user_id, until_time):
     try:
+        cnx = None
+        cursor = None
         cnx = connection()
-        cursor = cnx.cursor(prepared=True)
+        cursor = cnx.cursor(prepared=True, cursor_class=MySQLCursorPrepared)
         if until_time:
             stmt = "SELECT * FROM tweets WHERE user_id = ? AND created_at < ? ORDER BY created_at DESC"
             cursor.execute(stmt, (user_id, until_time))
@@ -100,8 +110,10 @@ def get_user_tweets(user_id, until_time):
 
 def get_all_tweets(until_time):
     try:
+        cnx = None
+        cursor = None
         cnx = connection()
-        cursor = cnx.cursor(prepared=True)
+        cursor = cnx.cursor(prepared=True, cursor_class=MySQLCursorPrepared)
         if until_time:
             stmt = "SELECT * FROM tweets WHERE created_at < ? ORDER BY created_at DESC"
             cursor.execute(stmt, (until_time,))
