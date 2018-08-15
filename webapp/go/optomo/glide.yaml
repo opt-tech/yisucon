@@ -1,0 +1,4 @@
+package: oisucon1/webapp/go/optomo
+import:
+- package: github.com/go-sql-driver/mysql
+- package: github.com/gorilla/mux

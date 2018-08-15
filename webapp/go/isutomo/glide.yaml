@@ -1,4 +1,0 @@
-package: yisucon1/webapp/go/isutomo
-import:
-- package: github.com/go-sql-driver/mysql
-- package: github.com/gorilla/mux

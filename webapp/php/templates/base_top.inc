@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Isuwitter</title>
+    <title>Optwitter</title>
     <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
     <header class="header">
-      <a class="title" href="/">Isuwitter</a>
+      <a class="title" href="/">Optwitter</a>
       <?php if(isset($name) && $name != ''): ?>
       <form class="logout" action="/logout" method="post">
         <button type="submit">ログアウト</button>
