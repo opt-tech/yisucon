@@ -3,7 +3,7 @@
 {% block content %}
     {% include '_post.html' %}
     <h3>{{ user }} さんのツイート</h3>
-    {% if mypage %}
+    {% if my_page %}
         <h4>あなたのページです</h4>
     {% elif is_friend %}
         <form action="/unfollow" method="post">
