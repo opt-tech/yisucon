@@ -13,6 +13,48 @@ def connection():
     )
 
 
+def initialize():
+    try:
+        cnx = None
+        cursor = None
+        cnx = connection()
+        cursor = cnx.cursor(prepared=True, cursor_class=MySQLCursorPrepared)
+
+        stmt = "DELETE FROM tweets WHERE id > 100000"
+        cursor.execute(stmt)
+        stmt = "DELETE FROM users WHERE id > 1000"
+        cursor.execute(stmt)
+        rows = cursor.fetchall()
+        if not rows:
+            return None
+        return rows[0][1]
+    except mysql.connector.Error as err:
+        print(err)
+    finally:
+        if cursor:
+            cursor.close()
+        if cnx:
+            cnx.close()
+
+
+def insert(_id, text):
+    try:
+        cnx = None
+        cursor = None
+        cnx = connection()
+        cursor = cnx.cursor(prepared=True, cursor_class=MySQLCursorPrepared)
+        stmt = "INSERT INTO tweets (user_id, text, created_at) VALUES (?, ?, NOW())"
+        cursor.execute(stmt, (_id, text))
+        return
+    except mysql.connector.Error as err:
+        print(err)
+    finally:
+        if cursor:
+            cursor.close()
+        if cnx:
+            cnx.close()
+
+
 def find_user(name):
     try:
         cnx = None

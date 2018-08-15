@@ -14,10 +14,18 @@ def create_app():
         static_url_path=''
     )
 
+    @app.route('/initialize')
+    def initialize():
+        db.initialize()
+        req = urllib.request.Request('http://localhost:8081/initialize')
+        with urllib.request.urlopen(req) as res:
+            if res.status != 200:
+                return abort(500, 'error')
+        return jsonify({'result': 'ok'})
+
     @app.route('/')
     def _index():
-        user_id = request.cookies.get('userId')
-        name = db.get_user_name(user_id)
+        name = db.get_user_name(request.cookies.get('userId'))
         if not name:
             flush = request.cookies.get('flush')
             res = make_response(render_template('index.html', flush=flush))
@@ -42,9 +50,18 @@ def create_app():
                 if len(tweets) == PERPAGE:
                     break
             if not request.args.get('append'):
-                return render_template('index.html', flush="haha", name=name, tweets=tweets)
+                return render_template('index.html', name=name, tweets=tweets)
             else:
                 return render_template('_tweets.html', tweets=tweets)
+
+    @app.route('/', methods=['POST'])
+    def post():
+        name = db.get_user_name(request.cookies.get('userId'))
+        text = request.form['text']
+        if (not name) or (not text):
+            return redirect("/", code=302)
+        db.insert(request.cookies.get('userId'), text)
+        return redirect("/", code=302)
 
     @app.route('/logout', methods=['POST'])
     def logout():
@@ -99,7 +116,6 @@ def create_app():
             headers={"Content-Type" : "application/json"}
         )
         with urllib.request.urlopen(req) as res:
-            print(res.status)
             if res.status != 200:
                 return abort(500, 'error')
         return redirect("/" + user, code=302)
@@ -117,7 +133,6 @@ def create_app():
             headers={"Content-Type": "application/json"}
         )
         with urllib.request.urlopen(req) as res:
-            print(res.status)
             if res.status != 200:
                 return abort(500, 'error')
         return redirect("/" + user, code=302)

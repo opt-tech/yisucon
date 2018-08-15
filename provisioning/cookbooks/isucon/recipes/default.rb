@@ -414,8 +414,8 @@ go build
 cd /var/www/webapp/ruby
 mkdir -p /vendor/bundle
 gem install bundler
-bundle install --path /vendor/bundle
-sudo gem update --system
+bundle install
+gem update --system
 gem update bundler
 
 ## php
@@ -538,7 +538,7 @@ Type=simple
 User=centos
 Group=centos
 WorkingDirectory=/var/www/webapp/ruby
-ExecStart=/vendor/bundle/ruby/2.3.0/bin/unicorn -c unicorn_optomo.rb optomo.ru
+ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_optomo.rb optomo.ru
 
 [Install]
 WantedBy=multi-user.target
@@ -564,7 +564,7 @@ Type=simple
 User=centos
 Group=centos
 WorkingDirectory=/var/www/webapp/ruby
-ExecStart=/vendor/bundle/ruby/2.3.0/bin/unicorn -c unicorn_optwitter.rb optwitter.ru
+ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_optwitter.rb optwitter.ru
 
 [Install]
 WantedBy=multi-user.target
