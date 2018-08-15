@@ -16,7 +16,7 @@ def create_app():
         else:
             return jsonify({'result': 'ok'})
 
-    @app.route('/<me>', methods=['GET'])
+    @app.route('/<me>')
     def _me(me):
         friends = db.get_friends(me)
         if not friends:

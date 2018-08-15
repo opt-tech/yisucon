@@ -8,7 +8,14 @@
 <body>
 <header class="header">
     <a class="title" href="/">Isuwitter</a>
-    <span class="name">こんにちは ゲストさん</span>
+    {% if name %}
+        <form class="logout" action="/logout" method="post">
+            <button type="submit">ログアウト</button>
+        </form>
+      <span class="name">こんにちは {{ name }}さん</span>
+    {% else %}
+        <span class="name">こんにちは ゲストさん</span>
+    {% endif %}
     <form class="search" action="/search" method="get">
         <input type="text" name="q" placeholder="search">
     </form>

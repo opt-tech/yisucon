@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    {% include '_post.html' %}
+    <h3>{{ query }} に関するツイート</h3>
+    <div class="timeline">
+    {% include '_tweets.html' %}
+    </div>
+    <button class="readmore">さらに読み込む</button>
+{% endblock %}
