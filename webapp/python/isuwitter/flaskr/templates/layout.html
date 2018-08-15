@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Isuwitter</title>
+    <link rel='stylesheet' href='/css/style.css' />
+</head>
+<body>
+<header class="header">
+    <a class="title" href="/">Isuwitter</a>
+    <span class="name">こんにちは ゲストさん</span>
+    <form class="search" action="/search" method="get">
+        <input type="text" name="q" placeholder="search">
+    </form>
+</header>
+<div class="container">
+    {% block content %}
+    {% endblock %}
+</div>
+<script src="/js/script.js"></script>
+</body>
+</html>
