@@ -535,10 +535,10 @@ Description=isucon-ruby-optomo
 
 [Service]
 Type=simple
-User=root
-Group=root
+User=centos
+Group=centos
 WorkingDirectory=/var/www/webapp/ruby
-ExecStart=/bin/bundle exec unicorn -c unicorn_optomo.rb optomo.ru
+ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_optomo.rb optomo.ru
 
 [Install]
 WantedBy=multi-user.target
@@ -561,10 +561,10 @@ Description=isucon-ruby-optwitter
 
 [Service]
 Type=simple
-User=root
-Group=root
+User=centos
+Group=centos
 WorkingDirectory=/var/www/webapp/ruby
-ExecStart=/bin/bundle exec unicorn -c unicorn_optwitter.rb optwitter.ru
+ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_optwitter.rb optwitter.ru
 
 [Install]
 WantedBy=multi-user.target
