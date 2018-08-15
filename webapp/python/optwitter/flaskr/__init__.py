@@ -50,7 +50,7 @@ def create_app():
                 if len(tweets) == PERPAGE:
                     break
             if not request.args.get('append'):
-                return render_template('index.html', flush="haha", name=name, tweets=tweets)
+                return render_template('index.html', name=name, tweets=tweets)
             else:
                 return render_template('_tweets.html', tweets=tweets)
 
