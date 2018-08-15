@@ -361,6 +361,29 @@ touch /usr/local/src/scala/scala-install.done
   not_if { ::File.exists?("/usr/local/src/scala/scala-install.done") }
 end
 
+## python
+
+directory "/usr/local/src/python" do
+  owner "root"
+  group "root"
+  mode 0755
+  action :create
+end
+
+bash "install-python" do
+  user "root"
+  cwd "/usr/local/src/python"
+  code <<-"END"
+set -ex
+
+yum install -y https://centos7.iuscommunity.org/ius-release.rpm
+yum install python36u python36u-libs python36u-devel python36u-pip -y
+
+touch /usr/local/src/python/python-install.done
+  END
+  not_if { ::File.exists?("/usr/local/src/python/python-install.done") }
+end
+
 ## webapp
 
 bash "install-webapp" do
@@ -406,7 +429,6 @@ cd /var/www/webapp/java/isuwitter
 ./mvnw clean package
 
 ## scala
-
 cd /var/www/webapp/scala/isutomo
 sbt clean dist
 cd ./target/universal
@@ -416,6 +438,10 @@ cd /var/www/webapp/scala/isuwitter
 sbt clean dist
 cd ./target/universal
 unzip isuwitter-1.0.zip
+
+## python
+cd /var/www/webapp/python/optomo
+pip3.6 -r requirements.txt
 
 chown -R root:root /var/www/webapp
   END
@@ -682,6 +708,61 @@ WantedBy=multi-user.target
 end
 
 service "isucon-scala-isuwitter" do
+  supports :start => true, :status => true, :restart => true
+  # action [:enable, :start]
+end
+
+# python
+file "/etc/systemd/system/isucon-python-optomo.service" do
+  owner "root"
+  group "root"
+  mode 0755
+  content <<-"END"
+[Unit]
+Description=isucon-python-optomo
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/var/www/webapp/python/optomo
+Environment=""
+ExecStart=waitress-serve --port=8081 --call 'flaskr:create_app'
+
+[Install]
+WantedBy=multi-user.target
+  END
+  notifies :run, "execute[systemctl-daemon-reload]", :immediately
+end
+
+service "isucon-python-optomo" do
+  supports :start => true, :status => true, :restart => true
+  # action [:enable, :start]
+end
+
+file "/etc/systemd/system/isucon-python-optwitter.service" do
+  owner "root"
+  group "root"
+  mode 0755
+  content <<-"END"
+[Unit]
+Description=isucon-python-optwitter
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment=""
+WorkingDirectory=/var/www/webapp/python/optwitter
+ExecStart=waitress-serve --port=8080 --call 'flaskr:create_app'
+
+[Install]
+WantedBy=multi-user.target
+  END
+  notifies :run, "execute[systemctl-daemon-reload]", :immediately
+end
+
+service "isucon-python-optwitter" do
   supports :start => true, :status => true, :restart => true
   # action [:enable, :start]
 end
