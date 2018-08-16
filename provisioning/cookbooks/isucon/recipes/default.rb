@@ -84,6 +84,10 @@ http {
       proxy_set_header Host $host;
       proxy_pass http://localhost:8080;
     }
+
+    location /favicon.ico {
+      empty_gif;
+    }
   }
 }
   END
