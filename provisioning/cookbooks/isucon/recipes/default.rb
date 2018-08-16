@@ -414,9 +414,10 @@ go build
 cd /var/www/webapp/ruby
 mkdir -p /vendor/bundle
 gem install bundler
-bundle install
 gem update --system
 gem update bundler
+bundle install
+
 
 ## php
 cd /var/www/webapp/php
@@ -727,7 +728,7 @@ User=root
 Group=root
 WorkingDirectory=/var/www/webapp/python/optomo
 Environment=""
-ExecStart=waitress-serve --port=8081 --call 'flaskr:create_app'
+ExecStart=/bin/waitress-serve --port=8081 --call 'flaskr:create_app'
 
 [Install]
 WantedBy=multi-user.target
@@ -754,7 +755,7 @@ User=root
 Group=root
 Environment=""
 WorkingDirectory=/var/www/webapp/python/optwitter
-ExecStart=waitress-serve --port=8080 --call 'flaskr:create_app'
+ExecStart=/bin/waitress-serve --port=8080 --call 'flaskr:create_app'
 
 [Install]
 WantedBy=multi-user.target
