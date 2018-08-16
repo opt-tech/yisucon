@@ -414,9 +414,10 @@ go build
 cd /var/www/webapp/ruby
 mkdir -p /vendor/bundle
 gem install bundler
-bundle install
 gem update --system
 gem update bundler
+bundle install
+
 
 ## php
 cd /var/www/webapp/php
