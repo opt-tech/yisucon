@@ -412,12 +412,11 @@ go build
 
 ## ruby
 cd /var/www/webapp/ruby
-mkdir -p /vendor/bundle
+mkdir -p vendor/bundle
 gem install bundler
 gem update --system
 gem update bundler
-bundle install
-
+bundle install --path vendor/bundle
 
 ## php
 cd /var/www/webapp/php
