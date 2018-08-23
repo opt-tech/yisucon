@@ -1,0 +1,7 @@
+{% for tweet in tweets %}
+  <div class="tweet" data-time="{{ tweet['time'] }}">
+    <p><a href="/{{ tweet['name'] }}" class="tweet-user-name">{{ tweet['name'] }}</a></p>
+    <p>{{ tweet['html']|safe }}</p>
+    <p class="time">{{ tweet['time'] }}</p>
+  </div>
+{% endfor %}

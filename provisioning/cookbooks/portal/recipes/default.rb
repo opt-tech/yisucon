@@ -32,12 +32,12 @@ NODE_ENV=#{node["env"]}
 START_DATE=#{node["start_date"]}
 END_DATE=#{node["end_date"]}
 PORT=80
-YJ_ISUCON_DB_HOST=#{node["db_host"]}
-YJ_ISUCON_DB_PORT=#{node["db_port"]}
-YJ_ISUCON_DB_USER=#{node["db_user"]}
-YJ_ISUCON_DB_PASSWORD=#{node["db_pass"]}
-YJ_ISUCON_DB_NAME=#{node["db_name"]}
-YJ_ISUCON_SECRET_KEY=#{node["secret_key"]}
+OPT_ISUCON_DB_HOST=#{node["db_host"]}
+OPT_ISUCON_DB_PORT=#{node["db_port"]}
+OPT_ISUCON_DB_USER=#{node["db_user"]}
+OPT_ISUCON_DB_PASSWORD=#{node["db_pass"]}
+OPT_ISUCON_DB_NAME=#{node["db_name"]}
+OPT_ISUCON_SECRET_KEY=#{node["secret_key"]}
   END
 end
 
@@ -51,7 +51,7 @@ directory "/usr/local/src/nodejs" do
   action :create
 end
 
-nodejs_version = "6.9.2"
+nodejs_version = "8.11.3"
 
 remote_file "/usr/local/src/nodejs/node-v#{nodejs_version}-linux-x64.tar.gz" do
   source "https://nodejs.org/dist/v#{nodejs_version}/node-v#{nodejs_version}-linux-x64.tar.gz"
@@ -85,8 +85,8 @@ mkdir -p /var/www/portal
 rsync -av --delete portal/ /var/www/portal/
 
 cd /var/www/portal
-sudo npm install
-NODE_ENV=#{node["env"]} sudo npm run build:prod:ngc
+npm install
+NODE_ENV=#{node["env"]} npm run build:prod:ngc
   END
 end
 

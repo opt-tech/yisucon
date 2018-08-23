@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var PortalHost = os.Getenv("YJ_ISUCON_PORTAL_HOST")
+var PortalHost = os.Getenv("OPT_ISUCON_PORTAL_HOST")
 
 const (
 	MaxWorkerCount     = 5
@@ -14,6 +14,6 @@ const (
 	BenchTimeLimit     = time.Minute
 	QueueCheckDuration = time.Second * 2
 	RequestTimeout     = time.Second * 30
-	BenchMarkerUA      = "YISUCON"
+	BenchMarkerUA      = "OPTISUCON"
 	LogFilePath        = "/tmp/isucon/benchmarker.log"
 )

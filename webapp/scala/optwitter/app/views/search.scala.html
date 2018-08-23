@@ -1,0 +1,8 @@
+@import model.Tweet
+@(name: String, query: String, tweets: Seq[Tweet])(implicit assetsFinder: AssetsFinder)
+@layout(name, assetsFinder) {
+    @_post()
+    <h3>@{query}に関するツイート</h3>
+    @_tweet(tweets)
+    <button class="readmore">さらに読み込む</button>
+}

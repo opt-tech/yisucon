@@ -1,0 +1,11 @@
+@import model.Tweet
+@(tweets: Seq[Tweet])
+<div class="timeline">
+@for(tweet <- tweets) {
+    <div class="tweet" data-time="@{tweet.time}" >
+        <p><a href="/@tweet.userName" class="tweet-user-name">@{tweet.userName}</a></p>
+        <p>@Html(tweet.html)</p>
+        <p class="time">@{tweet.time}</p>
+    </div>
+}
+</div>

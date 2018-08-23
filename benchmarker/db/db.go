@@ -29,11 +29,11 @@ func (db *DB) dsn() string {
 func (db *DB) connect() error {
 	db.Type = "mysql"
 
-	db.Host = os.Getenv("YJ_ISUCON_DB_HOST")
-	db.Port = os.Getenv("YJ_ISUCON_DB_PORT")
-	db.User = os.Getenv("YJ_ISUCON_DB_USER")
-	db.Pass = os.Getenv("YJ_ISUCON_DB_PASSWORD")
-	db.Name = os.Getenv("YJ_ISUCON_DB_NAME")
+	db.Host = os.Getenv("OPT_ISUCON_DB_HOST")
+	db.Port = os.Getenv("OPT_ISUCON_DB_PORT")
+	db.User = os.Getenv("OPT_ISUCON_DB_USER")
+	db.Pass = os.Getenv("OPT_ISUCON_DB_PASSWORD")
+	db.Name = os.Getenv("OPT_ISUCON_DB_NAME")
 
 	if len(db.Host) == 0 || len(db.Port) == 0 || len(db.User) == 0 || len(db.Name) == 0 {
 		db.Host = "localhost"

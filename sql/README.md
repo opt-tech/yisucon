@@ -16,14 +16,14 @@ bundle exec ruby seed.rb
 
 webapp/sql を利用する
 
-isuwitter データ投入
+optwitter データ投入
 ```
-mysql -uroot -D isuwitter < seed_isuwitter.sql
+mysql -uroot -D optwitter < seed_optwitter.sql
 ```
 
-isutomo データ投入
+optomo データ投入
 ```
-mysql -uroot -D isutomo < seed_isutomo.sql
+mysql -uroot -D optomo < seed_optomo.sql
 ```
 
 ## データソース

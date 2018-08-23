@@ -1,12 +1,13 @@
 require 'mysql2-cs-bind'
+require 'digest'
 require './tweet'
 
 def db
-  Thread.current[:yj_isucon_db] ||= Mysql2::Client.new(
-    host: ENV['YJ_ISUCON_DB_HOST'] || 'localhost',
-    port: ENV['YJ_ISUCON_DB_PORT'] ? ENV['YJ_ISUCON_DB_PORT'].to_i : 3306,
-    username: ENV['YJ_ISUCON_DB_USER'] || 'root',
-    password: ENV['YJ_ISUCON_DB_PASSWORD'],
+  Thread.current[:opt_isucon_db] ||= Mysql2::Client.new(
+    host: ENV['OPT_ISUCON_DB_HOST'] || 'localhost',
+    port: ENV['OPT_ISUCON_DB_PORT'] ? ENV['OPT_ISUCON_DB_PORT'].to_i : 3306,
+    username: ENV['OPT_ISUCON_DB_USER'] || 'root',
+    password: ENV['OPT_ISUCON_DB_PASSWORD'],
     reconnect: true,
   )
 end
@@ -14,15 +15,15 @@ end
 def register(name, pw)
   chars = [*'A'..'~']
   salt = (1..20).map{ chars.sample }.join('')
-  salted_password = encode_with_salt(password: pw, salt: salt)
+  salted_password = encode_with_salt(pw, salt)
   db.xquery(%|
-    INSERT INTO isuwitter.users (name, salt, password)
+    INSERT INTO optwitter.users (name, salt, password)
     VALUES (?, ?, ?)
   |, name, salt, salted_password)
   db.last_id
 end
 
-def encode_with_salt(password: , salt: )
+def encode_with_salt(password, salt)
   Digest::SHA1.hexdigest(salt + password)
 end
 
@@ -31,14 +32,14 @@ def bulk_tweet(data)
   value_string = ' (?, ?, ?) '
   values = ([value_string] * data.size).join(',')
   db.xquery(%|
-    INSERT INTO isuwitter.tweets (user_id, text, created_at) VALUES
+    INSERT INTO optwitter.tweets (user_id, text, created_at) VALUES
   | + values, data.flatten)
   db.last_id
 end
 
 def relation(user, friends)
   db.xquery(%|
-    INSERT INTO isutomo.friends (me, friends)
+    INSERT INTO optomo.friends (me, friends)
     VALUES (?, ?)
   |, user, friends.join(','))
   db.last_id
@@ -53,9 +54,9 @@ end
 users = File.read('./name.txt').strip.downcase.split("\n")
 
 # seed data
-db.query('TRUNCATE isuwitter.users')
-db.query('TRUNCATE isuwitter.tweets')
-db.query('TRUNCATE isutomo.friends')
+db.query('TRUNCATE optwitter.users')
+db.query('TRUNCATE optwitter.tweets')
+db.query('TRUNCATE optomo.friends')
 
 min_friend = users.size / 2 - 1
 max_friend = users.size - 1
@@ -75,4 +76,3 @@ end
 tweets.sort_by{|t| t[2]}.each_slice(100) do |ts|
   bulk_tweet ts
 end
-

@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    {% if name %}
+        {% include '_post.html' %}
+        <div class="timeline">
+        {% include '_tweets.html' %}
+        </div>
+        <button class="readmore">さらに読み込む</button>
+    {% else %}
+        {% if flush %}
+            <p class="flush">{{ flush }}</p>
+        {% endif %}
+        <form class="login" action="/login" method="post">
+            <input type="text" name="name">
+            <input type="password" name="password">
+            <button type="submit">ログイン</button>
+        </form>
+    {% endif %}
+{% endblock %}
+

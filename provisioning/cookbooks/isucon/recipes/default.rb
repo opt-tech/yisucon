@@ -27,8 +27,8 @@ set -ex
 cd sql
 mysql -uroot < schema.sql
 cd ../webapp/sql
-mysql -uroot -D isuwitter < seed_isuwitter.sql
-mysql -uroot -D isutomo < seed_isutomo.sql
+mysql -uroot -D optwitter < seed_optwitter.sql
+mysql -uroot -D optomo < seed_optomo.sql
 touch /etc/.initialized
   END
   not_if { ::File.exists?("/etc/.initialized") }
@@ -83,6 +83,10 @@ http {
     location / {
       proxy_set_header Host $host;
       proxy_pass http://localhost:8080;
+    }
+
+    location /favicon.ico {
+      empty_gif;
     }
   }
 }
@@ -147,7 +151,7 @@ http {
 
       fastcgi_param  REDIRECT_STATUS    200;
 
-      rewrite ^(.*)$ /isuwitter.php?$1 break;
+      rewrite ^(.*)$ /optwitter.php?$1 break;
     }
   }
 
@@ -188,7 +192,7 @@ http {
 
       fastcgi_param  REDIRECT_STATUS    200;
 
-      rewrite ^(.*)$ /isutomo.php?$1 break;
+      rewrite ^(.*)$ /optomo.php?$1 break;
     }
   }
 }
@@ -338,6 +342,52 @@ java_version = "1.8.0"
 package "java-#{java_version}-openjdk"
 package "java-#{java_version}-openjdk-devel"
 
+## scala
+
+directory "/usr/local/src/scala" do
+  owner "root"
+  group "root"
+  mode 0755
+  action :create
+end
+
+bash "install-scala" do
+  user "root"
+  cwd "/usr/local/src/scala"
+  code <<-"END"
+set -ex
+
+curl https://bintray.com/sbt/rpm/rpm | sudo tee /etc/yum.repos.d/bintray-sbt-rpm.repo
+yum install unzip sbt -y
+
+touch /usr/local/src/scala/scala-install.done
+  END
+  not_if { ::File.exists?("/usr/local/src/scala/scala-install.done") }
+end
+
+## python
+
+directory "/usr/local/src/python" do
+  owner "root"
+  group "root"
+  mode 0755
+  action :create
+end
+
+bash "install-python" do
+  user "root"
+  cwd "/usr/local/src/python"
+  code <<-"END"
+set -ex
+
+yum install -y https://centos7.iuscommunity.org/ius-release.rpm
+yum install python36u python36u-libs python36u-devel python36u-pip -y
+
+touch /usr/local/src/python/python-install.done
+  END
+  not_if { ::File.exists?("/usr/local/src/python/python-install.done") }
+end
+
 ## webapp
 
 bash "install-webapp" do
@@ -357,27 +407,45 @@ npm install --production
 cd /var/www/webapp
 export GOPATH=/var/www/webapp
 ln -sfv go src
-cd /var/www/webapp/go/isutomo
+cd /var/www/webapp/go/optomo
 glide install
 go build
-cd /var/www/webapp/go/isuwitter
+cd /var/www/webapp/go/optwitter
 glide install
 go build
 
 ## ruby
 cd /var/www/webapp/ruby
+mkdir -p vendor/bundle
 gem install bundler
-bundle install
+gem update --system
+gem update bundler
+bundle install --path vendor/bundle
 
 ## php
 cd /var/www/webapp/php
 /usr/local/bin/php composer.phar install
 
 ## java
-cd /var/www/webapp/java/isutomo
+cd /var/www/webapp/java/optomo
 ./mvnw clean package
-cd /var/www/webapp/java/isuwitter
+cd /var/www/webapp/java/optwitter
 ./mvnw clean package
+
+## scala
+cd /var/www/webapp/scala/optomo
+sbt clean dist
+cd ./target/universal
+unzip optomo-1.0.zip
+
+cd /var/www/webapp/scala/optwitter
+sbt clean dist
+cd ./target/universal
+unzip optwitter-1.0.zip
+
+## python
+cd /var/www/webapp/python/optomo
+pip3.6 install -r requirements.txt
 
 chown -R root:root /var/www/webapp
   END
@@ -393,8 +461,8 @@ Description=isucon-node
 
 [Service]
 Type=simple
-User=nobody
-Group=nobody
+User=centos
+Group=centos
 WorkingDirectory=/var/www/webapp/node
 ExecStart=/usr/local/bin/npm start
 
@@ -409,20 +477,20 @@ service "isucon-node" do
   action [:enable, :start]
 end
 
-file "/etc/systemd/system/isucon-go-isutomo.service" do
+file "/etc/systemd/system/isucon-go-optomo.service" do
   owner "root"
   group "root"
   mode 0755
   content <<-"END"
 [Unit]
-Description=isucon-go-isutomo
+Description=isucon-go-optomo
 
 [Service]
 Type=simple
-User=nobody
-Group=nobody
-WorkingDirectory=/var/www/webapp/go/isutomo
-ExecStart=/var/www/webapp/go/isutomo/isutomo
+User=centos
+Group=centos
+WorkingDirectory=/var/www/webapp/go/optomo
+ExecStart=/var/www/webapp/go/optomo/optomo
 
 [Install]
 WantedBy=multi-user.target
@@ -430,25 +498,25 @@ WantedBy=multi-user.target
   notifies :run, "execute[systemctl-daemon-reload]", :immediately
 end
 
-service "isucon-go-isutomo" do
+service "isucon-go-optomo" do
   supports :start => true, :status => true, :restart => true
   # action [:enable, :start]
 end
 
-file "/etc/systemd/system/isucon-go-isuwitter.service" do
+file "/etc/systemd/system/isucon-go-optwitter.service" do
   owner "root"
   group "root"
   mode 0755
   content <<-"END"
 [Unit]
-Description=isucon-go-isuwitter
+Description=isucon-go-optwitter
 
 [Service]
 Type=simple
-User=nobody
-Group=nobody
-WorkingDirectory=/var/www/webapp/go/isuwitter
-ExecStart=/var/www/webapp/go/isuwitter/isuwitter
+User=centos
+Group=centos
+WorkingDirectory=/var/www/webapp/go/optwitter
+ExecStart=/var/www/webapp/go/optwitter/optwitter
 
 [Install]
 WantedBy=multi-user.target
@@ -456,25 +524,25 @@ WantedBy=multi-user.target
   notifies :run, "execute[systemctl-daemon-reload]", :immediately
 end
 
-service "isucon-go-isuwitter" do
+service "isucon-go-optwitter" do
   supports :start => true, :status => true, :restart => true
   # action [:enable, :start]
 end
 
-file "/etc/systemd/system/isucon-ruby-isutomo.service" do
+file "/etc/systemd/system/isucon-ruby-optomo.service" do
   owner "root"
   group "root"
   mode 0755
   content <<-"END"
 [Unit]
-Description=isucon-ruby-isutomo
+Description=isucon-ruby-optomo
 
 [Service]
 Type=simple
-User=nobody
-Group=nobody
+User=centos
+Group=centos
 WorkingDirectory=/var/www/webapp/ruby
-ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_isutomo.rb isutomo.ru
+ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_optomo.rb optomo.ru
 
 [Install]
 WantedBy=multi-user.target
@@ -482,25 +550,25 @@ WantedBy=multi-user.target
   notifies :run, "execute[systemctl-daemon-reload]", :immediately
 end
 
-service "isucon-ruby-isutomo" do
+service "isucon-ruby-optomo" do
   supports :start => true, :status => true, :restart => true
   # action [:enable, :start]
 end
 
-file "/etc/systemd/system/isucon-ruby-isuwitter.service" do
+file "/etc/systemd/system/isucon-ruby-optwitter.service" do
   owner "root"
   group "root"
   mode 0755
   content <<-"END"
 [Unit]
-Description=isucon-ruby-isuwitter
+Description=isucon-ruby-optwitter
 
 [Service]
 Type=simple
-User=nobody
-Group=nobody
+User=centos
+Group=centos
 WorkingDirectory=/var/www/webapp/ruby
-ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_isuwitter.rb isuwitter.ru
+ExecStart=/usr/local/bin/bundle exec unicorn -c unicorn_optwitter.rb optwitter.ru
 
 [Install]
 WantedBy=multi-user.target
@@ -508,7 +576,7 @@ WantedBy=multi-user.target
   notifies :run, "execute[systemctl-daemon-reload]", :immediately
 end
 
-service "isucon-ruby-isuwitter" do
+service "isucon-ruby-optwitter" do
   supports :start => true, :status => true, :restart => true
   # action [:enable, :start]
 end
@@ -539,21 +607,21 @@ service "isucon-php" do
   # action [:enable, :start]
 end
 
-file "/etc/systemd/system/isucon-java-isutomo.service" do
+file "/etc/systemd/system/isucon-java-optomo.service" do
   owner "root"
   group "root"
   mode 0755
   content <<-"END"
 [Unit]
-Description=isucon-java-isutomo
+Description=isucon-java-optomo
 
 [Service]
 Type=simple
 User=root
 Group=root
-WorkingDirectory=/var/www/webapp/java/isutomo
+WorkingDirectory=/var/www/webapp/java/optomo
 Environment="_JAVA_OPTIONS=-Djava.security.egd=file:/dev/urandom"
-ExecStart=/usr/bin/java -jar target/isutomo-0.0.1-SNAPSHOT.jar
+ExecStart=/usr/bin/java -jar target/optomo-0.0.1-SNAPSHOT.jar
 
 [Install]
 WantedBy=multi-user.target
@@ -561,26 +629,26 @@ WantedBy=multi-user.target
   notifies :run, "execute[systemctl-daemon-reload]", :immediately
 end
 
-service "isucon-java-isutomo" do
+service "isucon-java-optomo" do
   supports :start => true, :status => true, :restart => true
   # action [:enable, :start]
 end
 
-file "/etc/systemd/system/isucon-java-isuwitter.service" do
+file "/etc/systemd/system/isucon-java-optwitter.service" do
   owner "root"
   group "root"
   mode 0755
   content <<-"END"
 [Unit]
-Description=isucon-java-isuwitter
+Description=isucon-java-optwitter
 
 [Service]
 Type=simple
 User=root
 Group=root
 Environment="_JAVA_OPTIONS=-Djava.security.egd=file:/dev/urandom"
-WorkingDirectory=/var/www/webapp/java/isuwitter
-ExecStart=/usr/bin/java -jar target/isuwitter-0.0.1-SNAPSHOT.jar
+WorkingDirectory=/var/www/webapp/java/optwitter
+ExecStart=/usr/bin/java -jar target/optwitter-0.0.1-SNAPSHOT.jar
 
 [Install]
 WantedBy=multi-user.target
@@ -588,7 +656,117 @@ WantedBy=multi-user.target
   notifies :run, "execute[systemctl-daemon-reload]", :immediately
 end
 
-service "isucon-java-isuwitter" do
+service "isucon-java-optwitter" do
+  supports :start => true, :status => true, :restart => true
+  # action [:enable, :start]
+end
+
+
+file "/etc/systemd/system/isucon-scala-optomo.service" do
+  owner "root"
+  group "root"
+  mode 0755
+  content <<-"END"
+[Unit]
+Description=isucon-scala-optomo
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/var/www/webapp/scala/optomo
+Environment="_JAVA_OPTIONS=-Djava.security.egd=file:/dev/urandom"
+ExecStart=/var/www/webapp/scala/optomo/target/universal/optomo-1.0/bin/optomo -Dhttp.port=8081
+
+[Install]
+WantedBy=multi-user.target
+  END
+  notifies :run, "execute[systemctl-daemon-reload]", :immediately
+end
+
+service "isucon-scala-optomo" do
+  supports :start => true, :status => true, :restart => true
+  # action [:enable, :start]
+end
+
+file "/etc/systemd/system/isucon-scala-optwitter.service" do
+  owner "root"
+  group "root"
+  mode 0755
+  content <<-"END"
+[Unit]
+Description=isucon-scala-optwitter
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment="_JAVA_OPTIONS=-Djava.security.egd=file:/dev/urandom"
+WorkingDirectory=/var/www/webapp/scala/optwitter
+ExecStart=/var/www/webapp/scala/optwitter/target/universal/optwitter-1.0/bin/optwitter -Dhttp.port=8080
+
+[Install]
+WantedBy=multi-user.target
+  END
+  notifies :run, "execute[systemctl-daemon-reload]", :immediately
+end
+
+service "isucon-scala-optwitter" do
+  supports :start => true, :status => true, :restart => true
+  # action [:enable, :start]
+end
+
+# python
+file "/etc/systemd/system/isucon-python-optomo.service" do
+  owner "root"
+  group "root"
+  mode 0755
+  content <<-"END"
+[Unit]
+Description=isucon-python-optomo
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/var/www/webapp/python/optomo
+Environment=""
+ExecStart=/bin/waitress-serve --port=8081 --call 'flaskr:create_app'
+
+[Install]
+WantedBy=multi-user.target
+  END
+  notifies :run, "execute[systemctl-daemon-reload]", :immediately
+end
+
+service "isucon-python-optomo" do
+  supports :start => true, :status => true, :restart => true
+  # action [:enable, :start]
+end
+
+file "/etc/systemd/system/isucon-python-optwitter.service" do
+  owner "root"
+  group "root"
+  mode 0755
+  content <<-"END"
+[Unit]
+Description=isucon-python-optwitter
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment=""
+WorkingDirectory=/var/www/webapp/python/optwitter
+ExecStart=/bin/waitress-serve --port=8080 --call 'flaskr:create_app'
+
+[Install]
+WantedBy=multi-user.target
+  END
+  notifies :run, "execute[systemctl-daemon-reload]", :immediately
+end
+
+service "isucon-python-optwitter" do
   supports :start => true, :status => true, :restart => true
   # action [:enable, :start]
 end

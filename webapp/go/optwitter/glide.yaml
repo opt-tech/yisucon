@@ -1,0 +1,6 @@
+package: oisucon1/webapp/go/optwitter
+import:
+- package: github.com/go-sql-driver/mysql
+- package: github.com/gorilla/mux
+- package: github.com/gorilla/sessions
+- package: github.com/unrolled/render

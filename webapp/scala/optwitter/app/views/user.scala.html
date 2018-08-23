@@ -1,0 +1,25 @@
+@import model.Tweet
+@(name: String, user: String, mypage: Boolean, isFriend: Boolean, tweets: Seq[Tweet])(implicit assetsFinder: AssetsFinder)
+@layout(name, assetsFinder) {
+    @_post()
+    @if(mypage) {
+        <h4>あなたのページです</h4>
+    } else {
+        <h3>@user さんのツイート</h3>
+        @if(name != null) {
+            @if(isFriend) {
+                <form action="/unfollow" method="post">
+                    <input type="hidden" name="user" value="@user"/>
+                    <button type="submit" id="user-unfollow-button">アンフォロー</button>
+                </form>
+            } else {
+                <form action="/follow" method="post">
+                    <input type="hidden" name="user" value="@user"/>
+                    <button type="submit" id="user-follow-button">フォロー</button>
+                </form>
+            }
+        }
+    }
+    @_tweet(tweets)
+    <button class="readmore">さらに読み込む</button>
+}
